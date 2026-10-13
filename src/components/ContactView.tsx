@@ -12,12 +12,45 @@ export const ContactView: React.FC = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<string | null>('ip'); // Default expanded as in Image 7!
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.message) return;
-    setSubmitted(true);
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const scriptUrl =
+      import.meta.env.VITE_GOOGLE_SCRIPT_URL?.trim() ||
+      'https://script.google.com/macros/s/AKfycbyhiIJDJahD_hgCObmhbLOtO8HOudf8M7jZ7HLCpsednG1dciJe_l5uveuN6Rn5VvkZlA/exec';
+
+    try {
+      await fetch(scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      setSubmitted(true);
+      setFormData({
+        fullName: '',
+        email: '',
+        phoneOrg: '',
+        inquiryType: 'general',
+        message: '',
+      });
+    } catch (err) {
+      console.error('Failed to submit form to sheet:', err);
+      setSubmitError('Unable to send message at this moment. Please check your connection or contact directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleFaq = (id: string) => {
@@ -188,10 +221,20 @@ export const ContactView: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                 <button
                   type="submit"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-brand-red hover:bg-brand-red-dark text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-brand-red hover:bg-brand-red-dark disabled:opacity-60 text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  <span>Send Message</span>
-                  <span className="material-symbols-outlined text-base">send</span>
+                  {isSubmitting ? (
+                    <>
+                      <span>Submitting...</span>
+                      <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Message</span>
+                      <span className="material-symbols-outlined text-base">send</span>
+                    </>
+                  )}
                 </button>
 
                 <div className="flex items-center gap-1.5 text-slate-500 text-xs">
@@ -200,13 +243,24 @@ export const ContactView: React.FC = () => {
                 </div>
               </div>
 
+              {submitError && (
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 flex items-center gap-3 mt-2 animate-in fade-in">
+                  <span className="material-symbols-outlined text-rose-600 text-2xl">
+                    error
+                  </span>
+                  <div className="text-xs leading-relaxed">
+                    <strong>Submission Notice:</strong> {submitError}
+                  </div>
+                </div>
+              )}
+
               {submitted && (
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center gap-3 mt-2 animate-in fade-in">
                   <span className="material-symbols-outlined text-emerald-600 text-2xl">
                     task_alt
                   </span>
                   <div className="text-xs leading-relaxed">
-                    <strong>Message Received!</strong> Thank you for reaching out, {formData.fullName}. A team member from WIN CoE translational desk will respond to {formData.email} shortly.
+                    <strong>Message Received!</strong> Thank you for reaching out. Your inquiry has been logged in our registry, and a team member from WIN CoE translational desk will respond shortly.
                   </div>
                 </div>
               )}
