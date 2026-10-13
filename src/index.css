@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #C4202B;
+  --color-brand-red-dark: #9F0018;
+  --color-brand-maroon: #801818;
+  --color-brand-orange: #EB6923;
+  --color-brand-orange-light: #F07D24;
+  --color-brand-orange-subtle: #FFF4ED;
+  --color-brand-red-subtle: #FDF2F2;
+  --color-brand-charcoal: #19212D;
+  --color-brand-slate: #222934;
+  --color-brand-muted: #64748B;
+  --color-brand-border: #E8ECF2;
+  --color-brand-surface: #FAFAF9;
+  --color-brand-light: #F8F9FA;
+
+  --font-display: 'Public Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Newsreader', serif;
+}
+
+@layer utilities {
+  .btn-brand-gradient {
+    background: linear-gradient(135deg, #C4202B 0%, #EB6923 100%);
+  }
+  .btn-brand-gradient:hover {
+    background: linear-gradient(135deg, #9F0018 0%, #D45817 100%);
+  }
+}

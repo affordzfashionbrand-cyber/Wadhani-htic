@@ -1,0 +1,7 @@
+{
+  "name": "Wadhwani IIT Madras Innovation Centre",
+  "description": "Translational MedTech and HealthTech Centre of Excellence bridging laboratory bench discoveries to bedside patient care at IIT Madras Research Park.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
